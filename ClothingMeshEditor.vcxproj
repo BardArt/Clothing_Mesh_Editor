@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{B51D315F-A5DE-494E-870C-7782DBA56DE1}</ProjectGuid>
+    <RootNamespace>ClothingMeshEditor</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <OutDir>$(MSBuildProjectDirectory)\Release\</OutDir>
+    <IntDir>$(MSBuildProjectDirectory)\build\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <AdditionalOptions>/Brepro %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/Brepro %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="launcher.cpp" />
+    <None Include="app.py;core.py;viewer.py;README.md;requirements.txt;build.cmd;make_guide.py;check_*.py;output\pdf\*.pdf;native\meshoptimizer\LICENSE.md" />
+    <PortableFile Include="app.py;core.py;viewer.py;README.md;requirements.txt;output\pdf\Clothing_Mesh_Editor_0.5_Modeller_Guide_EN.pdf" />
+    <RuntimeFile Include="runtime\**\*" Exclude="runtime\**\__pycache__\**;runtime\**\*.pyc;runtime\**\*.pyo" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="native\CmaMeshSimplifier.vcxproj">
+      <Project>{501094F4-B182-4359-A37B-F063C851108C}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="ValidatePortableRuntime" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('runtime\pythonw.exe') Or !Exists('runtime\python.exe') Or !Exists('runtime\python314.dll') Or !Exists('runtime\python314._pth')"
+           Text="The bundled Python runtime is missing. Restore the runtime folder from the repository." />
+    <Error Condition="!Exists('runtime\vcruntime140.dll') Or !Exists('runtime\vcruntime140_1.dll') Or !Exists('runtime\msvcp140.dll') Or !Exists('runtime\Lib\site-packages\PySide6\plugins\platforms\qwindows.dll')"
+           Text="The bundled Qt or Visual C++ libraries are missing. Restore the complete runtime folder from the repository." />
+  </Target>
+  <Target Name="CopyPortableFiles" AfterTargets="Build">
+    <Copy SourceFiles="@(PortableFile)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(RuntimeFile)" DestinationFiles="@(RuntimeFile->'$(OutDir)runtime\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="native\meshoptimizer\LICENSE.md" DestinationFiles="$(OutDir)licenses\meshoptimizer.md" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="CleanPortableFiles" BeforeTargets="Clean">
+    <Delete Files="@(PortableFile->'$(OutDir)%(Filename)%(Extension)');@(RuntimeFile->'$(OutDir)runtime\%(RecursiveDir)%(Filename)%(Extension)');$(OutDir)licenses\meshoptimizer.md" />
+  </Target>
+</Project>

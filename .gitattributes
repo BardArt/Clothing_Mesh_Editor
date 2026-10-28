@@ -1,0 +1,8 @@
+* text=auto
+# The bundled Python and libraries are kept byte for byte.
+runtime/** -text
+*.dll binary
+*.pyd binary
+*.exe binary
+*.pdf binary
+*.png binary
